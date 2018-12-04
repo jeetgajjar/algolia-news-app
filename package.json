@@ -1,0 +1,17 @@
+{
+  "name": "news-app",
+  "version": "1.0.0",
+  "description": "This application is for sifting through different news articles with NewsApi and Algolia's Search Api",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jeet",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "ejs": "^2.6.1",
+    "express": "^4.16.4",
+    "npm-watch": "^0.5.0"
+  }
+}
