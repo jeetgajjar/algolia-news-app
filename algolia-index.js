@@ -5,19 +5,19 @@ const NewsAPI = require('newsapi');
 const newsapi = new NewsAPI(process.env.NEWSAPI_KEY);
 
 
-function pingNewsApi(searchItem, todayDate) {
-    newsapi.v2.everything({
-      q: searchItem,
-      from: '2018-11-09', //Change this date to at most 30 days in the 
-      to: todayDate,
-      language: 'en',
-      sortBy: 'relevancy',
-      page: 5
-    }).then(response => {
-      console.log("DONE PINGING!!!!");
-      // console.log(response);
-    });
-  }
+// function pingNewsApi(searchItem, todayDate) {
+//     newsapi.v2.everything({
+//       q: searchItem,
+//       from: '2018-11-14', //Change this date to at most 30 days in the 
+//       to: todayDate,
+//       language: 'en',
+//       sortBy: 'relevancy',
+//       page: 5
+//     }).then(response => {
+//       console.log("DONE PINGING!!!!");
+//       // console.log(response);
+//     });
+//   }
 
 
  function buildIndex(searchItem, todayDate) {

@@ -6,7 +6,7 @@ const NewsAPI = require('newsapi');
 const newsapi = new NewsAPI(process.env.NEWSAPI_KEY);
 const algoliasearch = require("algoliasearch");
 const algoliaClient = algoliasearch(process.env.APPLICATIONID, process.env.ALGOLIA_API_KEY);
-const indexer = require('./algolia-index.js');
+// const indexer = require('./algolia-index.js');
 
 // let index = algoliaClient.initIndex('articles');
 
@@ -22,8 +22,10 @@ app.post('/', function (req, res) {
 
   let searchItem = req.body.article;
   var todayDate = new Date().toISOString().slice(0,10);
+  // buildIndex(pingNewsApi(searchItem, todayDate));
   pingNewsApi(searchItem, todayDate);
-  console.log(search(searchItem));
+  search();
+  // console.log(search(searchItem));
   // request(function(err, response, body) {
   //   if(err) {
   //     res.render('index', {article: null, error: "Hmmm, try that again please."})
@@ -49,14 +51,15 @@ app.listen(3000, function () {
   }).then(response => {
     console.log("DONE PINGING!!!!");
     // console.log(response);
-    indexer.buildIndex(response);
+    // indexer.buildIndex(response);
+    buildIndex(response)
   });
 }
 
 
-function search(article){
-
-  var index = indexer.buildIndex();
+  function search(searchItem, todayDate){
+    var newsApiResponse = pingNewsApi(searchItem, todayDate)
+    var index = buildIndex(newsApiResponse);
     index.search({
       query: 'author',
       attributesToRetrieve: ['title', 'url', 'author']
@@ -70,4 +73,34 @@ function search(article){
       console.log(content);
     }
   );
+}
+function buildIndex(response) {  
+  //initialize our index of articles
+  let index = algoliaClient.initIndex("articles");
+
+  //config index
+  index.setSettings(
+    {
+      searchableAttributes: ["title",
+                              "url",
+                              "author"]
+    },
+    function(err, content) {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(content);
+      }
+    }
+  );
+
+  index.addObject(response, function(err, content) {
+    if (err) {
+      console.log(err)
+    } else {
+      console.log(content);
+    }
+  })
+  
+  return index;
 }
