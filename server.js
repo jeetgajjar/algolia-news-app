@@ -8,7 +8,7 @@ const algoliasearch = require("algoliasearch");
 const algoliaClient = algoliasearch(process.env.APPLICATIONID, process.env.ALGOLIA_API_KEY);
 // const indexer = require('./algolia-index.js');
 
-// let index = algoliaClient.initIndex('articles');
+let index = algoliaClient.initIndex('articles');
 
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -24,6 +24,7 @@ app.post('/', function (req, res) {
   var todayDate = new Date().toISOString().slice(0,10);
   // buildIndex(pingNewsApi(searchItem, todayDate));
   pingNewsApi(searchItem, todayDate);
+  sleep(3000);
   search();
   // console.log(search(searchItem));
   // request(function(err, response, body) {
@@ -58,10 +59,10 @@ app.listen(3000, function () {
 
 
   function search(searchItem, todayDate){
-    var newsApiResponse = pingNewsApi(searchItem, todayDate)
-    var index = buildIndex(newsApiResponse);
+    // var newsApiResponse = pingNewsApi(searchItem, todayDate)
+    // var index = buildIndex(newsApiResponse);
     index.search({
-      query: 'author',
+      query: 'Adele Peters',
       attributesToRetrieve: ['title', 'url', 'author']
     }, 
     function searchDone(err, content) {
@@ -76,7 +77,7 @@ app.listen(3000, function () {
 }
 function buildIndex(response) {  
   //initialize our index of articles
-  let index = algoliaClient.initIndex("articles");
+  // let index = algoliaClient.initIndex("articles");
 
   //config index
   index.setSettings(
@@ -94,6 +95,14 @@ function buildIndex(response) {
     }
   );
 
+  index.clearIndex(function(err, content) {
+    if (err) {
+      throw err;
+    } else {
+      console.log(content);
+    }
+  });
+
   index.addObject(response, function(err, content) {
     if (err) {
       console.log(err)
@@ -103,4 +112,12 @@ function buildIndex(response) {
   })
   
   return index;
+}
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
 }
