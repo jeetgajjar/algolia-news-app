@@ -8,7 +8,7 @@ const newsapi = new NewsAPI(process.env.NEWSAPI_KEY);
 const algoliasearch = require("algoliasearch");
 const algoliaClient = algoliasearch(process.env.APPLICATIONID, process.env.ALGOLIA_API_KEY);
 
-const index = algoliaClient.initIndex('articles');
+const TAGS = [ 'technology', 'business' ];
 
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -19,21 +19,36 @@ app.get('/', function (req, res) {
 })
 
 app.post('/', function (req, res) {
-  let searchItem = req.body.article;
-  let todayDate = new Date().toISOString().slice(0,10);
+  const tag = "business";
+  const searchItem = req.body.article;
+  const index = algoliaClient.initIndex(tag);
 
   index.search({
     query: searchItem,
-    attributesToRetrieve: ['title', 'url', 'author']
-  }, (err, content) => {
-    console.log(content);
-
-    res.render('index');
+    attributesToRetrieve: ['title', 'url', 'author', 'content']
+  }).then( (content) => {
+    res.render('index', { articles: content });
   });
 })
 
-newsapi.v2.topHeadlines({ language: 'en', country: 'us' })
-  .then( (response) => { return index.addObjects(response.articles); })
+let clearIndexes = () => {
+  return Promise.all(TAGS.map( (tag) => {
+    const index = algoliaClient.initIndex(tag);
+    return index.clearIndex();
+  }));
+};
+
+let buildIndexes = () => {
+  return Promise.all(TAGS.map( (tag) => {
+    const index = algoliaClient.initIndex(tag);
+
+    return newsapi.v2.topHeadlines({ category: tag, language: 'en', country: 'us', pageSize: 100 })
+      .then( (response) => { return index.addObjects(response.articles); })
+  }));
+};
+
+clearIndexes()
+  .then( (response) => { return buildIndexes(); } )
   .then( (response) => {
     app.listen(3000, function () {
       console.log('Example app listening on port 3000!')
