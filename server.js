@@ -28,6 +28,7 @@ app.post('/', function (req, res) {
     attributesToRetrieve: ['title', 'url', 'author', 'content']
   }).then( (content) => {
     res.render('index', { articles: content });
+
   });
 })
 
