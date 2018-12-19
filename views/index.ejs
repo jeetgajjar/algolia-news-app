@@ -10,20 +10,29 @@
     <div class="container">
       <fieldset>
         <form action="/" method="post">
-          <input name="article" type="text" class="ghost-input" placeholder="Search for an Article" required>
+          <p>Search through </p>
+          <input name="search" type="text" class="ghost-input" placeholder="Search for an Article" required>
           <input type="submit" class="ghost-button" value="Search">
         </form>
-        <p>
-          <div class="btn-group">
-            <a class="btn pill" value = "technology" href="#">Technology</a>
-            <a class="btn pill" value = "business" href="#">Business</a>
-            <a class="btn pill" value = "entertainment" href="#">Entertainment</a>
-            <a class="btn pill" value = "health" href="#">Health</a>
-            <a class="btn pill" value = "science" href="#">Science</a>
-            <a class="btn pill" value = "sports" href="#">Sports</a>
-          </div>
-          </p>
       </fieldset>
+      <p>
+          <% if (locals.articles) { %>
+            <table class="centered">
+                <tr>
+                    <th>Author</th>
+                    <th>Title</th>
+                    <th>Content</th>
+                  </tr>
+                <% for(var i=0; i < locals.articles.hits.length; i++) { %>
+                   <tr>
+                     <td><%= articles.hits[i].author %></td>
+                     <td><a href= <%= articles.hits[i].url %>> <%= articles.hits[i].title %></a></td>
+                     <td><%= articles.hits[i].content %></td>
+                   </tr>
+                <% } %>
+                </table>
+        <% } %>
+      </p>
     </div>
   </body>
 </html>
