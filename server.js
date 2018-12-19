@@ -11,7 +11,7 @@ app.get('/', function (req, res) {
 })
 
 app.post('/', function (req, res) {
-  console.log(req.body.article);
+  console.log(req.body.search);
   res.render('index');
 })
 
