@@ -67,3 +67,26 @@ body {
   p {
     color: #E64A19;
   }
+
+  .btn{
+    text-decoration:none;
+    color:#333333;
+    font-size:12px;
+    font-weight:bold;
+    padding:0 15px;
+    line-height:32px;
+    height: auto;
+    display:inline-block;
+    text-align:center;
+    background-color:#DDDDDD;
+  }
+
+  .btn:hover{
+    background-color:#F6F6F6;
+  }
+
+  .btn.pill{
+    -webkit-border-radius: 16px;
+    -moz-border-radius: 16px;
+    border-radius: 16px;
+  }

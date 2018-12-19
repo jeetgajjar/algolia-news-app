@@ -1,6 +1,14 @@
+require('dotenv').config();
+
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+const NewsAPI = require('newsapi');
+const newsapi = new NewsAPI(process.env.NEWSAPI_KEY);
+const algoliasearch = require("algoliasearch");
+const algoliaClient = algoliasearch(process.env.APPLICATIONID, process.env.ALGOLIA_API_KEY);
+
+const TAGS = [ 'technology', 'business', 'entertainment', 'health', 'science', 'sports'];
 
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -11,10 +19,53 @@ app.get('/', function (req, res) {
 })
 
 app.post('/', function (req, res) {
-  console.log(req.body.article);
-  res.render('index');
+  const search = req.body.search;
+  const tag = getTagFromSearch(search).toLowerCase();
+  const searchItem = getSearchItem(search);
+  const index = algoliaClient.initIndex(tag);
+  index.search({
+    query: searchItem,
+    attributesToRetrieve: ['title', 'url', 'author', 'content']
+  }).then( (content) => {
+    res.render('index', { articles: content,
+    });
+
+  });
 })
 
-app.listen(3000, function () {
-  console.log('Example app listening on port 3000!')
-})
+let clearIndexes = () => {
+  return Promise.all(TAGS.map( (tag) => {
+    const index = algoliaClient.initIndex(tag);
+    return index.clearIndex();
+  }));
+};
+
+let buildIndexes = () => {
+  return Promise.all(TAGS.map( (tag) => {
+    const index = algoliaClient.initIndex(tag);
+
+    return newsapi.v2.topHeadlines({ category: tag, language: 'en', country: 'us', pageSize: 100 })
+      .then( (response) => { return index.addObjects(response.articles); })
+  }));
+};
+
+clearIndexes()
+  .then( (response) => { return buildIndexes(); } )
+  .then( (response) => {
+    app.listen(3000, function () {
+      console.log('Example app listening on port 3000!')
+    })
+  })
+
+function getTagFromSearch(search) {
+  var pattern = /"(.*?)"(.*)/
+  var match = pattern.exec(search);
+  return match[1].trim();
+}
+
+function getSearchItem(search) {
+  var pattern = /"(.*?)"(.*)/
+  var match = pattern.exec(search);
+  return match[2].trim();
+}
+

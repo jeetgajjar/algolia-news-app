@@ -9,7 +9,9 @@
   "author": "Jeet",
   "license": "ISC",
   "dependencies": {
+    "algoliasearch": "^3.31.0",
     "body-parser": "^1.18.3",
+    "dotenv": "^6.1.0",
     "ejs": "^2.6.1",
     "express": "^4.16.4",
     "newsapi": "^2.4.0",
