@@ -8,7 +8,7 @@ const newsapi = new NewsAPI(process.env.NEWSAPI_KEY);
 const algoliasearch = require("algoliasearch");
 const algoliaClient = algoliasearch(process.env.APPLICATIONID, process.env.ALGOLIA_API_KEY);
 
-const TAGS = [ 'technology', 'business' ];
+const TAGS = [ 'technology', 'business', 'entertainment', 'health', 'science', 'sports'];
 
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -19,15 +19,16 @@ app.get('/', function (req, res) {
 })
 
 app.post('/', function (req, res) {
-  const tag = "business";
-  const searchItem = req.body.article;
+  const search = req.body.search;
+  const tag = getTagFromSearch(search).toLowerCase();
+  const searchItem = getSearchItem(search);
   const index = algoliaClient.initIndex(tag);
-
   index.search({
     query: searchItem,
     attributesToRetrieve: ['title', 'url', 'author', 'content']
   }).then( (content) => {
-    res.render('index', { articles: content });
+    res.render('index', { articles: content,
+    });
 
   });
 })
@@ -55,3 +56,16 @@ clearIndexes()
       console.log('Example app listening on port 3000!')
     })
   })
+
+function getTagFromSearch(search) {
+  var pattern = /"(.*?)"(.*)/
+  var match = pattern.exec(search);
+  return match[1].trim();
+}
+
+function getSearchItem(search) {
+  var pattern = /"(.*?)"(.*)/
+  var match = pattern.exec(search);
+  return match[2].trim();
+}
+
